@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Keyboard Analysis: Steelseries vs. Wooting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Professional Neutrals & Deep Accents -->
+    <!-- Application Structure Plan: A single-page application with a refined, professional UI. The structure is now: 1) 'Technology Deep Dive': Replaces 'Tech Primer' to offer more detailed explanations with an "AI Explainer" feature. 2) 'Brand Dossier': A new, detailed section comparing the core philosophies, software, and long-term value of Wooting and Steelseries. 3) 'Model Showdown': An expanded section with more detailed performance charts and a significantly enriched, multi-category 'Interactive Spec Sheet' inspired by professional review sites. 4) 'AI-Powered Verdict': A focused section for the personalized AI recommendation. This structure provides a more logical and in-depth analytical flow. -->
+    <!-- Visualization & Content Choices: 1. Core Concepts -> Goal: Inform -> Method: HTML/CSS cards + Gemini-powered modal for simplified analogies. 2. Brand Philosophies -> Goal: Compare/Analyze -> Method: Detailed text blocks and a multi-axis Radar Chart (Chart.js) for a quick visual summary. 3. Performance Specs -> Goal: Compare -> Method: Horizontal Bar Charts (Chart.js) for clear quantitative comparison. 4. Feature Matrix -> Goal: Organize/Compare -> Method: A comprehensive, multi-category HTML table with scores and detailed hover tooltips, powered by JS. This provides a deep, data-rich comparison. 5. Final Recommendation -> Goal: Personalize -> Method: A Gemini API-powered textarea for a custom-generated recommendation based on user input and the detailed report data. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; color: #374151; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Source Serif 4', serif; }
+        .nav-link { transition: color 0.3s, border-color 0.3s; color: #4b5563; }
+        .nav-link.active { color: #1e3a8a; border-bottom-color: #1e3a8a; font-weight: 600; }
+        .nav-link:hover { color: #1e3a8a; }
+        .card { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05), 0 1px 2px 0 rgba(0,0,0,0.06); transition: transform 0.3s, box-shadow 0.3s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05); }
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 320px; max-height: 350px; }
+        .tooltip { position: absolute; background-color: #111827; color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.875rem; z-index: 50; pointer-events: none; opacity: 0; transition: opacity 0.2s; white-space: pre-wrap; max-width: 300px; }
+        .gemini-button { background-color: #1e3a8a; color: white; transition: background-color 0.3s; }
+        .gemini-button:hover { background-color: #1e40af; }
+        .gemini-button:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(17, 24, 39, 0.6); backdrop-filter: blur(4px); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal-content { background-color: white; padding: 2rem; border-radius: 0.75rem; max-width: 500px; width: 90%; transform: scale(0.95); transition: transform 0.3s; }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .loader { width: 48px; height: 48px; border: 5px solid #f3f4f6; border-bottom-color: #1e3a8a; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        .spec-table-category { background-color: #f3f4f6; font-weight: 600; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="app-header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-20 border-b border-gray-200">
+        <nav class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <h1 class="text-2xl font-bold text-gray-900">Keyboard Analysis</h1>
+                <div class="hidden md:flex space-x-8 text-sm font-medium">
+                    <a href="#tech" class="nav-link pb-1 border-b-2 border-transparent">Technology</a>
+                    <a href="#dossier" class="nav-link pb-1 border-b-2 border-transparent">Brand Dossier</a>
+                    <a href="#showdown" class="nav-link pb-1 border-b-2 border-transparent">Model Showdown</a>
+                    <a href="#verdict" class="nav-link pb-1 border-b-2 border-transparent">AI Verdict</a>
+                </div>
+                <div class="md:hidden">
+                    <select id="mobile-nav" class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        <option value="#tech">Technology</option>
+                        <option value="#dossier">Brand Dossier</option>
+                        <option value="#showdown">Model Showdown</option>
+                        <option value="#verdict">AI Verdict</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="hero" class="text-center py-16 md:py-24">
+            <h2 class="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight">The Analog Keyboard Revolution</h2>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">A professional analysis of Steelseries vs. Wooting, enhanced with AI-driven insights to guide your investment.</p>
+        </section>
+
+        <section id="tech" class="py-16 scroll-mt-24">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-bold text-gray-900">Technology Deep Dive</h3>
+                <p class="mt-3 text-gray-600 max-w-2xl mx-auto">Understanding the core magnetic switch technology is crucial to appreciating the performance differences.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card p-6">
+                    <h4 class="text-xl font-semibold text-gray-900 flex justify-between items-center">Analog Hall Effect <span class="gemini-explainer-icon cursor-pointer text-xl" data-term="Analog Hall Effect">✨</span></h4>
+                    <p class="mt-2 text-gray-600">A contactless system using a magnet and sensor. This eliminates physical friction and contact bounce, leading to superior durability (100M+ actuations) and an intrinsically smooth keystroke.</p>
+                </div>
+                <div class="card p-6">
+                    <h4 class="text-xl font-semibold text-gray-900 flex justify-between items-center">Adjustable Actuation <span class="gemini-explainer-icon cursor-pointer text-xl" data-term="Adjustable Actuation">✨</span></h4>
+                    <p class="mt-2 text-gray-600">The ability to define the exact key travel distance (0.1mm-4.0mm) required to register an input. This allows for per-key tuning for ultra-fast response or deliberate, misclick-proof actions.</p>
+                </div>
+                <div class="card p-6">
+                    <h4 class="text-xl font-semibold text-gray-900 flex justify-between items-center">Rapid Trigger <span class="gemini-explainer-icon cursor-pointer text-xl" data-term="Rapid Trigger">✨</span></h4>
+                    <p class="mt-2 text-gray-600">Dynamically resets a key the instant it moves upward, eliminating reset-point latency. This provides a significant competitive advantage in games requiring rapid, repeated inputs like counter-strafing.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="dossier" class="py-16 scroll-mt-24">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-bold text-gray-900">Brand Dossier</h3>
+                <p class="mt-3 text-gray-600 max-w-2xl mx-auto">An in-depth look at the two competing philosophies shaping the future of keyboard technology.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div class="card p-8">
+                    <h4 class="text-2xl font-semibold text-center text-gray-900 mb-4">Wooting: The Enthusiast's Vanguard</h4>
+                    <p class="text-gray-600">Wooting operates as a community-driven innovator, prioritizing performance and long-term value. Their ethos is built on transparency, open development, and an industry-leading 4-year warranty. Their products are platforms, designed to be modified and improved over time with continuous firmware updates that add significant features, ensuring even older models remain competitive. The lightweight, web-based Wootility software and onboard memory make their keyboards true plug-and-play devices, free from software bloat.</p>
+                </div>
+                 <div class="card p-8">
+                    <h4 class="text-2xl font-semibold text-center text-gray-900 mb-4">Steelseries: The Mainstream Powerhouse</h4>
+                    <p class="text-gray-600">As a dominant force in retail, Steelseries focuses on a polished, out-of-the-box experience within a broad ecosystem. Their GG software suite integrates all their peripherals, offering user-friendly presets and synchronized RGB lighting. However, this convenience comes with trade-offs: the software is often criticized as resource-heavy, the keyboards are closed systems with no moddability, and community reports raise concerns about long-term LED reliability. Their "analog" feature is a powerful macro system, not true gamepad emulation.</p>
+                </div>
+                <div class="lg:col-span-2 card p-6 mt-8">
+                     <h4 class="text-2xl font-semibold text-center text-gray-900 mb-4">Comparative Analysis</h4>
+                     <p class="text-center text-sm text-gray-500 mb-4">A visual summary of each brand's strategic focus across key areas.</p>
+                    <div class="chart-container"><canvas id="brandRadarChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="showdown" class="py-16 scroll-mt-24">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-bold text-gray-900">Model Showdown</h3>
+                <p class="mt-3 text-gray-600 max-w-2xl mx-auto">A granular, data-driven comparison of the specific models.</p>
+            </div>
+            
+            <div class="card p-6 mb-8">
+                <h4 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Key Performance Indicators</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     <div>
+                        <h5 class="font-semibold text-center text-gray-700">Polling Rate (Reports/sec)</h5>
+                        <div class="chart-container h-64 md:h-80"><canvas id="pollingRateChart"></canvas></div>
+                         <p class="text-center text-xs text-gray-500 mt-2">Wooting's 80HE/60HEv2 offer a definitive technical advantage with True 8kHz polling.</p>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold text-center text-gray-700">Best-Case Latency (ms)</h5>
+                        <div class="chart-container h-64 md:h-80"><canvas id="latencyChart"></canvas></div>
+                        <p class="text-center text-xs text-gray-500 mt-2">Lower is better. Wooting's newer models achieve the lowest end-to-end latency, a key metric for competitive play.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-6">
+                <h4 class="text-2xl font-semibold text-gray-900 mb-4 text-center">Interactive Spec Sheet</h4>
+                <div class="overflow-x-auto">
+                    <table id="spec-table" class="w-full text-sm text-left text-gray-600">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Feature</th>
+                                <th scope="col" class="px-6 py-3 text-center">Steelseries Apex Pro</th>
+                                <th scope="col" class="px-6 py-3 text-center">Wooting two HE</th>
+                                <th scope="col" class="px-6 py-3 text-center">Wooting 60HE+</th>
+                                <th scope="col" class="px-6 py-3 text-center">Wooting 80HE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                 <p class="text-center text-xs text-gray-500 mt-4">Hover over a row for a detailed explanation.</p>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+        
+        <section id="verdict" class="py-16 scroll-mt-24">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-bold text-gray-900">AI-Powered Verdict</h3>
+                <p class="mt-3 text-gray-600 max-w-2xl mx-auto">Receive a personalized recommendation by describing your specific needs and preferences.</p>
+            </div>
+            
+            <div class="card p-8 max-w-3xl mx-auto">
+                <h4 class="text-2xl font-semibold text-center text-gray-900">Get Your Custom Recommendation</h4>
+                <p class="text-center text-sm text-gray-500 mt-2 mb-4">Describe your primary games (e.g., FPS, MOBA, Sim), what you value most (speed, feel, features, modding), and your approximate budget. The more detail, the better the analysis.</p>
+                <textarea id="user-prompt" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition" rows="4" placeholder="e.g., I'm a competitive Valorant player on a budget of around $200. I need the fastest response time possible for counter-strafing, but I also do a lot of writing for school, so the typing feel is important..."></textarea>
+                <button id="gemini-verdict-button" class="gemini-button w-full py-3 px-4 rounded-md mt-4 font-semibold text-lg">✨ Analyze My Playstyle</button>
+            </div>
+            
+            <div id="verdict-display" class="mt-8 p-8 bg-white border border-gray-200 rounded-lg min-h-[12rem] flex items-center justify-center transition-opacity duration-500 max-w-3xl mx-auto">
+                <p class="text-gray-500 text-center">Your personalized analysis will appear here.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="tooltip" class="tooltip"></div>
+    
+    <div id="gemini-modal" class="modal-overlay">
+        <div class="modal-content text-center">
+            <h3 id="modal-title" class="text-2xl font-semibold text-gray-900 mb-4"></h3>
+            <div id="modal-body">
+                <div class="loader-container flex justify-center items-center h-24">
+                    <div class="loader"></div>
+                </div>
+            </div>
+            <button id="modal-close-button" class="mt-6 py-2 px-6 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">Close</button>
+        </div>
+    </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const specData = [
+            { category: 'Performance' },
+            { feature: 'Latency (Wired)', ss: '1.5 ms', w2: '2.0 ms', w60: '1.5 ms', w80: '<b>0.4 ms</b>', score: { ss: 8.5, w2: 8.0, w60: 8.5, w80: 9.8 } },
+            { feature: 'Rapid Trigger Quality', ss: 'Excellent', w2: 'Excellent', w60: 'Excellent', w80: '<b>Best-in-class</b>', score: { ss: 9.0, w2: 9.2, w60: 9.5, w80: 9.9 } },
+            { feature: 'Polling Rate', ss: '1000Hz', w2: '1000Hz', w60: '1000Hz', w80: '<b>8000Hz</b>', score: { ss: 8.0, w2: 8.0, w60: 8.0, w80: 10.0 } },
+            
+            { category: 'Typing & Sound' },
+            { feature: 'Switch Feel (Stock)', ss: 'Smooth Linear', w2: 'Smooth Linear', w60: 'Smooth Linear', w80: '<b>Gasket-dampened Smooth</b>', score: { ss: 7.8, w2: 7.5, w60: 7.5, w80: 9.2 } },
+            { feature: 'Sound Profile (Stock)', ss: 'Quiet, some ping', w2: 'Loud, clacky', w60: 'Hollow, rattly', w80: '<b>Deep, muted thock</b>', score: { ss: 7.0, w2: 6.0, w60: 5.5, w80: 9.0 } },
+            { feature: 'Keycap Quality', ss: 'Double-shot PBT', w2: 'Double-shot PBT', w60: 'Double-shot PBT', w80: '<b>Double-shot PBT</b>', score: { ss: 8.0, w2: 8.0, w60: 8.0, w80: 8.5 } },
+            { feature: 'Stabilization (Stock)', ss: 'Good', w2: 'Average', w60: 'Average', w80: '<b>Very Good</b>', score: { ss: 7.5, w2: 6.5, w60: 6.5, w80: 8.8 } },
+
+            { category: 'Build & Features' },
+            { feature: 'Case Material', ss: 'Aluminum/Plastic', w2: 'ABS Plastic', w60: 'ABS Plastic', w80: '<b>PCR ABS / Zinc</b>', score: { ss: 8.0, w2: 7.0, w60: 7.0, w80: 9.0 } },
+            { feature: 'Analog Control Type', ss: '2-in-1 Digital Macro', w2: '<b>True Gamepad (XInput)</b>', w60: '<b>True Gamepad (XInput)</b>', w80: '<b>True Gamepad (XInput)</b>', score: { ss: 7.0, w2: 9.5, w60: 9.5, w80: 9.5 } },
+            { feature: 'Software Suite', ss: 'Steelseries GG', w2: 'Wootility', w60: 'Wootility', w80: 'Wootility', score: { ss: 6.5, w2: 9.0, w60: 9.0, w80: 9.0 } },
+            { feature: 'Moddability', ss: 'None', w2: 'High', w60: 'High', w80: '<b>Very High</b>', score: { ss: 1.0, w2: 8.5, w60: 9.0, w80: 9.5 } },
+
+            { category: 'Value & Support' },
+            { feature: 'Warranty', ss: '1-2 Years', w2: '<b>4 Years</b>', w60: '<b>4 Years</b>', w80: '<b>4 Years</b>', score: { ss: 5.0, w2: 10.0, w60: 10.0, w80: 10.0 } },
+            { feature: 'Community & Support', ss: 'Standard', w2: 'Excellent', w60: 'Excellent', w80: '<b>Excellent</b>', score: { ss: 6.0, w2: 9.0, w60: 9.0, w80: 9.5 } },
+        ];
+        
+        const tooltips = {
+            'Latency (Wired)': 'The total time it takes from a keypress to the action appearing on screen. Lower is better. Measured independently.',
+            'Rapid Trigger Quality': 'A rating of the feature\'s responsiveness and implementation. All are excellent, but Wooting\'s is considered the gold standard.',
+            'Polling Rate': 'How many times per second the keyboard reports to the PC. 8000Hz offers a theoretical advantage in reporting speed.',
+            'Switch Feel (Stock)': 'The tactile experience of the switches out-of-the-box. Gasket mounting on the 80HE provides a softer, more premium feel.',
+            'Sound Profile (Stock)': 'The acoustic character of the keyboard without modifications. The 80HE is engineered for a deeper, more pleasant sound.',
+            'Keycap Quality': 'All models use durable PBT plastic, which resists shine over time.',
+            'Stabilization (Stock)': 'How well the larger keys (Spacebar, Enter) are stabilized to prevent rattle. The 80HE shows significant improvement.',
+            'Case Material': 'The materials used for the keyboard body. Heavier, more premium materials improve stability and sound.',
+            'Analog Control Type': 'Crucial difference: Wooting provides true gamepad control for variable movement. Steelseries offers a dual-action macro system.',
+            'Software Suite': 'Wootility is praised for being lightweight and powerful. Steelseries GG is comprehensive but often criticized as bloated.',
+            'Moddability': 'The ease with which the keyboard can be customized (case, switches, etc.). Wooting is designed for modding; Steelseries is not.',
+            'Warranty': 'A direct indicator of the manufacturer\'s confidence in the product\'s long-term reliability.',
+            'Community & Support': 'The availability of community-driven help, mods, and the company\'s reputation for long-term firmware support.',
+        };
+
+        const verdictData = { purist: {}, sim: {}, modder: {}, mainstream: {} };
+
+        // --- Gemini API Integration ---
+        const geminiVerdictButton = document.getElementById('gemini-verdict-button');
+        const userPromptTextarea = document.getElementById('user-prompt');
+        const verdictDisplay = document.getElementById('verdict-display');
+        const geminiExplainerIcons = document.querySelectorAll('.gemini-explainer-icon');
+        const modal = document.getElementById('gemini-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalCloseButton = document.getElementById('modal-close-button');
+
+        async function callGemini(prompt) {
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`API call failed with status: ${response.status}`);
+                const result = await response.json();
+                if (result.candidates && result.candidates[0].content.parts[0].text) {
+                    return result.candidates[0].content.parts[0].text;
+                }
+                return "Sorry, I couldn't generate a response. Please try again.";
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                return `An error occurred: ${error.message}. Please check the console.`;
+            }
+        }
+
+        geminiVerdictButton.addEventListener('click', async () => {
+            const userInput = userPromptTextarea.value.trim();
+            if (!userInput) {
+                verdictDisplay.innerHTML = `<p class="text-red-500 text-center">Please describe your playstyle and preferences in the text box.</p>`;
+                return;
+            }
+
+            geminiVerdictButton.disabled = true;
+            geminiVerdictButton.innerHTML = '<div class="loader !w-6 !h-6 !border-4 mx-auto"></div>';
+            verdictDisplay.innerHTML = `<div class="loader"></div>`;
+
+            const context = `You are a professional gaming peripheral analyst. Based on the following detailed report data, provide a personalized keyboard recommendation.
+            - Wooting Keyboards: Performance-focused, for enthusiasts. Offer true analog input (XInput), are highly moddable (hot-swap), have a 4-year warranty, and superior latency (0.4ms) and polling (8000Hz) on the 80HE model. Their software (Wootility) is lightweight. Their build quality, especially on the 80HE (gasket mount), is excellent.
+            - Steelseries Apex Pro: Mainstream-focused. Offers 2-in-1 action keys (a digital macro feature), is not moddable, has a 1-2 year warranty, and has higher latency (~1.5ms) and 1000Hz polling. Its software (GG) is comprehensive but can be bloated. Long-term LED reliability is a community concern.
+            - Key Tech: 'Rapid Trigger' is crucial for competitive games and is excellent on both, but Wooting's is considered the original and best.`;
+
+            const prompt = `${context}\n\nA user has described their needs: "${userInput}".\n\nAnalyze their needs in detail. Recommend either a specific Wooting model (e.g., 80HE for performance, 60HE+ for budget modding, two HE for full-size) or the Steelseries Apex Pro. Justify your choice by directly referencing the technical data (latency, analog type, moddability, warranty, etc.) and explain WHY those specs matter for this specific user's described playstyle. Format the response with a title and clear paragraphs.`;
+            
+            const aiResponse = await callGemini(prompt);
+            
+            verdictDisplay.innerHTML = `<div class="text-left"><h4 class="font-bold text-2xl text-gray-900 text-center mb-4">Personalized Analysis</h4><div class="text-gray-600 space-y-3">${aiResponse.replace(/\n/g, '<br>')}</div></div>`;
+            geminiVerdictButton.disabled = false;
+            geminiVerdictButton.innerHTML = '✨ Analyze My Playstyle';
+        });
+
+        function showModal() { modal.classList.add('visible'); }
+        function hideModal() { modal.classList.remove('visible'); }
+
+        geminiExplainerIcons.forEach(icon => {
+            icon.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const term = e.target.dataset.term;
+                modalTitle.textContent = `Explaining: ${term}`;
+                modalBody.innerHTML = `<div class="loader-container flex justify-center items-center h-24"><div class="loader"></div></div>`;
+                showModal();
+                const prompt = `Explain the gaming keyboard technology term "${term}" to me like I'm a smart gamer who wants a creative, easy-to-grasp analogy. Keep it concise.`;
+                const aiResponse = await callGemini(prompt);
+                modalBody.innerHTML = `<p class="text-gray-600 text-lg">${aiResponse}</p>`;
+            });
+        });
+
+        modalCloseButton.addEventListener('click', hideModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
+
+        // --- Original App Logic ---
+        const sections = document.querySelectorAll('main section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const mobileNav = document.getElementById('mobile-nav');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === `#${id}`));
+                    if (document.activeElement !== mobileNav) mobileNav.value = `#${id}`;
+                }
+            });
+        }, { rootMargin: '-20% 0px -80% 0px' });
+
+        sections.forEach(section => observer.observe(section));
+        mobileNav.addEventListener('change', (e) => { document.querySelector(e.target.value).scrollIntoView(); });
+
+        const tooltipEl = document.getElementById('tooltip');
+        function showTooltip(e, text) {
+            tooltipEl.textContent = text;
+            tooltipEl.style.opacity = '1';
+            const rect = e.target.getBoundingClientRect();
+            tooltipEl.style.left = `${e.clientX}px`;
+            tooltipEl.style.top = `${rect.bottom + 10}px`;
+            tooltipEl.style.transform = 'translateX(-50%)';
+        }
+        function hideTooltip() { tooltipEl.style.opacity = '0'; }
+
+        const tableBody = document.querySelector('#spec-table tbody');
+        specData.forEach(item => {
+            if (item.category) {
+                const row = document.createElement('tr');
+                row.className = 'spec-table-category';
+                row.innerHTML = `<td colspan="5" class="px-6 py-3 text-sm text-gray-800">${item.category}</td>`;
+                tableBody.appendChild(row);
+            } else {
+                const row = document.createElement('tr');
+                row.className = 'bg-white border-b hover:bg-gray-50/50';
+                const scoreToHtml = (score) => `<span class="font-bold text-gray-800">${score.toFixed(1)}</span>`;
+                row.innerHTML = `
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-800 whitespace-nowrap">${item.feature}</th>
+                    <td class="px-6 py-4 text-center">${item.ss}<br><span class="text-xs text-blue-800">${scoreToHtml(item.score.ss)}</span></td>
+                    <td class="px-6 py-4 text-center">${item.w2}<br><span class="text-xs text-blue-800">${scoreToHtml(item.score.w2)}</span></td>
+                    <td class="px-6 py-4 text-center">${item.w60}<br><span class="text-xs text-blue-800">${scoreToHtml(item.score.w60)}</span></td>
+                    <td class="px-6 py-4 text-center">${item.w80}<br><span class="text-xs text-blue-800">${scoreToHtml(item.score.w80)}</span></td>
+                `;
+                tableBody.appendChild(row);
+                row.addEventListener('mousemove', (e) => { if(tooltips[item.feature]) showTooltip(e, tooltips[item.feature]); });
+                row.addEventListener('mouseleave', hideTooltip);
+            }
+        });
+
+        const sharedChartOptions = {
+            maintainAspectRatio: false, responsive: true,
+            plugins: {
+                legend: { labels: { color: '#374151', font: { family: "'Inter', sans-serif" } } },
+                tooltip: {
+                    backgroundColor: '#fff', titleColor: '#111827', bodyColor: '#374151',
+                    borderColor: '#e5e7eb', borderWidth: 1, padding: 10,
+                    titleFont: { family: "'Inter', sans-serif", weight: 'bold' },
+                    bodyFont: { family: "'Inter', sans-serif" },
+                    callbacks: {
+                        title: (context) => context[0].dataset.label,
+                        label: (context) => `${context.chart.data.labels[context.dataIndex]}: ${context.formattedValue}`
+                    }
+                }
+            },
+            scales: {
+                r: { angleLines: { color: '#e5e7eb' }, grid: { color: '#e5e7eb' }, pointLabels: { color: '#374151', font: { size: 12, family: "'Inter', sans-serif" } }, ticks: { backdropColor: '#f9fafb', color: '#4b5563' } },
+                x: { ticks: { color: '#4b5563' }, grid: { display: false } },
+                y: { ticks: { color: '#4b5563' }, grid: { color: '#e5e7eb' } }
+            }
+        };
+
+        new Chart(document.getElementById('brandRadarChart'), {
+            type: 'radar',
+            data: {
+                labels: ['Performance', 'True Analog', 'Moddability', 'Software', 'Long-Term Value'],
+                datasets: [
+                    { label: 'Wooting', data: [10, 10, 9, 9, 9.5], fill: true, backgroundColor: 'rgba(30, 64, 175, 0.2)', borderColor: 'rgb(30, 64, 175)', pointBackgroundColor: 'rgb(30, 64, 175)' },
+                    { label: 'Steelseries', data: [8, 2, 1, 6.5, 4], fill: true, backgroundColor: 'rgba(153, 27, 27, 0.2)', borderColor: 'rgb(153, 27, 27)', pointBackgroundColor: 'rgb(153, 27, 27)' }
+                ]
+            },
+            options: sharedChartOptions
+        });
+        
+        const barChartOptions = { ...sharedChartOptions, indexAxis: 'y', scales: { x: { grid: { display: true, color: '#e5e7eb' } }, y: { grid: { display: false } } } };
+        new Chart(document.getElementById('pollingRateChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Steelseries Apex Pro', 'Wooting 60HE+/two HE', 'Wooting 80HE'],
+                datasets: [{ label: 'Polling Rate (Hz)', data: [1000, 1000, 8000], backgroundColor: ['#be123c', '#b45309', '#1e40af'] }]
+            },
+            options: { ...barChartOptions, plugins: { ...barChartOptions.plugins, legend: { display: false }}}
+        });
+        new Chart(document.getElementById('latencyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Wooting 80HE', 'Wooting 60HE+', 'Steelseries Apex Pro', 'Wooting two HE'],
+                datasets: [{ label: 'Latency (ms)', data: [0.4, 1.5, 1.5, 2], backgroundColor: ['#1e40af', '#b45309', '#be123c', '#b45309'] }]
+            },
+            options: { ...barChartOptions, plugins: { ...barChartOptions.plugins, legend: { display: false }}}
+        });
+    });
+</script>
+
+</body>
+</html>
